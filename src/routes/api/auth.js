@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
   register,
-  // login,
+  login,
   // logout,
   // getCurrent,
 } = require("../../controllers/auth");
@@ -15,7 +15,7 @@ const { userSchemas } = require("../../models");
 
 router.post("/register", validateBody(userSchemas.registerSchema), register);
 
-// router.post("/login", validateBody(userSchemas.loginSchema), login);
+router.post("/login", validateBody(userSchemas.loginSchema), login);
 
 // router.post("/logout", authenticate, logout);
 

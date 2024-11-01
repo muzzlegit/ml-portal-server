@@ -1,14 +1,15 @@
-const bcrypt = require("bcrypt");
-// const { nanoid } = require("nanoid");
-require("dotenv").config();
-
 const { ctrlWrapper } = require("../../helpers");
 const { registerUser } = require("../../services/userService.js");
 
 const register = async (req, res) => {
-  const { email, password, userColor } = req.body;
+  const { email, password, userColor, userIcon } = req.body;
 
-  const { user, refreshToken } = await registerUser(email, password, userColor);
+  const { user, refreshToken } = await registerUser(
+    email,
+    password,
+    userColor,
+    userIcon
+  );
 
   res.cookie("refreshToken", refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000,

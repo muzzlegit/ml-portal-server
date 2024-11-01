@@ -1,5 +1,6 @@
-const { createRegisterUserDTO } = require("./userDto.js");
+const { createRegisterUserDTO, createLoginUserDTO } = require("./userDto.js");
 
 module.exports = {
   createRegisterUserDTO,
+  createLoginUserDTO,
 };

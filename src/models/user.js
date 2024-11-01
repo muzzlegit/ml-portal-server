@@ -5,6 +5,7 @@ const { handleMongooseError } = require("../helpers");
 
 const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+const userIcons = ["bag", "bot"];
 
 const userSchema = new Schema(
   {
@@ -23,8 +24,11 @@ const userSchema = new Schema(
       require: true,
       match: colorRegex,
     },
-
-    token: String,
+    userIcon: {
+      type: String,
+      require: true,
+      enum: userIcons,
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -39,6 +43,9 @@ const registerSchema = Joi.object({
   email: Joi.string().pattern(emailRegex).required(),
   password: Joi.string().min(6).required(),
   userColor: Joi.string().pattern(colorRegex).required(),
+  userIcon: Joi.string()
+    .valid(...userIcons)
+    .required(),
 });
 
 const loginSchema = Joi.object({
@@ -50,10 +57,17 @@ const colorSchema = Joi.object({
   userColor: Joi.string().pattern(colorRegex).required(),
 });
 
+const iconSchema = Joi.object({
+  userIcon: Joi.string()
+    .valid(...userIcons)
+    .required(),
+});
+
 const userSchemas = {
   registerSchema,
   loginSchema,
   colorSchema,
+  iconSchema,
 };
 
 module.exports = {
