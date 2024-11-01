@@ -6,7 +6,7 @@ const {
   register,
   login,
   // logout,
-  // getCurrent,
+  refresh,
 } = require("../../controllers/auth");
 
 const { validateBody, authenticate } = require("../../middlewares");
@@ -19,6 +19,6 @@ router.post("/login", validateBody(userSchemas.loginSchema), login);
 
 // router.post("/logout", authenticate, logout);
 
-// router.get("/current", authenticate, getCurrent);
+router.get("/refresh", authenticate, refresh);
 
 module.exports = router;

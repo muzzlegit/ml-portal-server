@@ -1,7 +1,12 @@
 const bcrypt = require("bcrypt");
 
 const { User } = require("../models");
-const { generateToken, saveToken } = require("../services/tokenService.js");
+const {
+  generateToken,
+  saveToken,
+  validateToken,
+  findToken,
+} = require("../services/tokenService.js");
 const { createRegisterUserDTO, createLoginUserDTO } = require("../dtos");
 const { HttpError } = require("../helpers");
 
@@ -23,11 +28,11 @@ const registerUser = async (email, password, userColor, userIcon) => {
   });
 
   const userDTO = createRegisterUserDTO(newUser);
-  const { accessToken, refreshToken } = generateToken(userDTO);
+  const tokens = generateToken(userDTO);
 
-  await saveToken(userDTO.id, refreshToken);
+  await saveToken(userDTO.id, tokens.refreshToken);
 
-  return { user: userDTO, accessToken, refreshToken };
+  return { user: userDTO, tokens };
 };
 
 // Login
@@ -46,14 +51,34 @@ const loginUser = async (email, password) => {
 
   const userDTO = createLoginUserDTO(user);
 
-  const { accessToken, refreshToken } = generateToken(userDTO);
+  const tokens = generateToken(userDTO);
 
-  await saveToken(userDTO.id, refreshToken);
+  await saveToken(userDTO.id, tokens.refreshToken);
 
-  return { user: userDTO, accessToken, refreshToken };
+  return { user: userDTO, tokens };
+};
+
+// Refresh
+const refreshUser = async (refreshToken) => {
+  if (!refreshToken) {
+    throw HttpError(401);
+  }
+  const { valid, user, error } = await validateToken(refreshToken, "refresh");
+  const tokenData = await findToken(refreshToken);
+
+  if (!valid || !tokenData) {
+    throw HttpError(401, error);
+  }
+
+  const currentUser = await User.findById(user.id);
+  const userDTO = createLoginUserDTO(currentUser);
+  const tokens = generateToken(userDTO);
+  await saveToken(userDTO.id, tokens.refreshToken);
+  return { tokens, user: userDTO };
 };
 
 module.exports = {
   registerUser,
   loginUser,
+  refreshUser,
 };
