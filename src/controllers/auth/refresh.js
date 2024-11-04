@@ -1,9 +1,9 @@
 const { ctrlWrapper } = require("../../helpers");
-const { refreshUser } = require("../../services/userService.js");
+const { AuthService } = require("../../services");
 
 const refresh = async (req, res) => {
   const { refreshToken } = req.cookies;
-  const { user, tokens } = await refreshUser(refreshToken);
+  const { user, tokens } = await AuthService.refreshUser(refreshToken);
 
   res.cookie("refreshToken", tokens.refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
