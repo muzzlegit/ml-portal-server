@@ -60,6 +60,12 @@ class AuthService {
     return { user: userDTO, tokens };
   }
 
+  // LOGOUT
+  async logout(refreshToken) {
+    const token = await this.tokenService.removeToken(refreshToken);
+    return token;
+  }
+
   // REFRESH
   async refreshUser(refreshToken) {
     if (!refreshToken) {

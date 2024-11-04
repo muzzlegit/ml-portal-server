@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { Token } = require("../models");
 
 class TokenService {
-  static generateToken = (payload) => {
+  static generateToken(payload) {
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET_ACCESS, {
       expiresIn: "12h",
     });
@@ -10,9 +10,9 @@ class TokenService {
       expiresIn: "7d",
     });
     return { accessToken, refreshToken };
-  };
+  }
 
-  static saveToken = async (userId, refreshToken) => {
+  static async saveToken(userId, refreshToken) {
     const tokenData = await Token.findOne({ user: userId });
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
@@ -20,14 +20,19 @@ class TokenService {
     }
     const token = await Token.create({ user: userId, refreshToken });
     return token;
-  };
+  }
 
-  static findToken = async (refreshToken) => {
+  static async findToken(refreshToken) {
     const tokenData = await Token.findOne({ refreshToken });
     return tokenData;
-  };
+  }
 
-  static validateToken = async (accessToken, keyType) => {
+  static async removeToken(refreshToken) {
+    const tokenData = await Token.deleteOne({ refreshToken });
+    return tokenData;
+  }
+
+  static async validateToken(accessToken, keyType) {
     const secretKey =
       keyType === "access"
         ? process.env.JWT_SECRET_ACCESS
@@ -52,7 +57,7 @@ class TokenService {
         return { valid: false, error: "Token verification failed" };
       }
     }
-  };
+  }
 }
 
 module.exports = TokenService;

@@ -1,12 +1,13 @@
-const { User } = require("../../models");
 const { ctrlWrapper } = require("../../helpers");
+const { AuthService } = require("../../services");
 
 const logout = async (req, res) => {
-  const { _id } = req.user;
+  const { refreshToken } = req.cookies;
 
-  await User.findByIdAndUpdate(_id, { token: "" });
+  const token = await AuthService.logout(refreshToken);
+  res.clearCookie("refreshToken");
 
-  res.json({});
+  res.status(200).json(token);
 };
 
 module.exports = {
