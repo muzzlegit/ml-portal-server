@@ -1,13 +1,15 @@
 const TokenService = require("./tokenService.js");
 const HashService = require("./hashService.js");
+const MailService = require("./mailService.js");
 const { AuthDTO } = require("../dtos");
 const { HttpError } = require("../helpers");
 const { User } = require("../models");
 
 class AuthService {
-  constructor(hashService, tokenService) {
+  constructor(hashService, tokenService, mailService) {
     this.hashService = hashService;
     this.tokenService = tokenService;
+    this.mailService = mailService;
   }
   // REGISTRATION
   async registration(email, password, userColor, userIcon) {
@@ -65,6 +67,17 @@ class AuthService {
     const token = await this.tokenService.removeToken(refreshToken);
     return token;
   }
+  // RESET PASSWORD
+  async resetPassword(email, newPassword) {}
+  // REQUEST PASSWORD RESET
+  async requestPasswordReset(email) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw HttpError(404);
+    }
+    this.mailService.sendPasswordResetEmail(email, "ggg");
+  }
 
   // REFRESH
   async refreshUser(refreshToken) {
@@ -92,4 +105,4 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService(HashService, TokenService);
+module.exports = new AuthService(HashService, TokenService, MailService);

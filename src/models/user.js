@@ -53,6 +53,13 @@ const loginSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const requestPasswordResetSchema = Joi.object({
+  email: Joi.string().pattern(emailRegex).required(),
+});
+const resetPasswordSchema = Joi.object({
+  password: Joi.string().min(6).required(),
+});
+
 const colorSchema = Joi.object({
   userColor: Joi.string().pattern(colorRegex).required(),
 });
@@ -66,6 +73,8 @@ const iconSchema = Joi.object({
 const userSchemas = {
   registerSchema,
   loginSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
   colorSchema,
   iconSchema,
 };
