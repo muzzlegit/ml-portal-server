@@ -1,15 +1,17 @@
 const TokenService = require("./tokenService.js");
 const HashService = require("./hashService.js");
 const MailService = require("./mailService.js");
+const IDService = require("./idService.js");
 const { AuthDTO } = require("../dtos");
 const { HttpError } = require("../helpers");
 const { User } = require("../models");
 
 class AuthService {
-  constructor(hashService, tokenService, mailService) {
+  constructor(hashService, tokenService, mailService, idService) {
     this.hashService = hashService;
     this.tokenService = tokenService;
     this.mailService = mailService;
+    this.idService = idService;
   }
   // REGISTRATION
   async registration(email, password, userColor, userIcon) {
@@ -68,7 +70,32 @@ class AuthService {
     return token;
   }
   // RESET PASSWORD
-  async resetPassword(email, newPassword) {}
+  async resetPassword(resetToken, newPassword) {
+    if (!resetToken || !newPassword) {
+      throw HttpError(400);
+    }
+    const { valid, user, error } = await this.tokenService.validateToken(
+      resetToken,
+      "reset"
+    );
+
+    if (!valid) {
+      throw HttpError(401, error);
+    }
+    if (!user || !user.id) {
+      throw HttpError(404, "User not found for the provided token.");
+    }
+
+    const hashPassword = await this.hashService.hashPassword(newPassword);
+
+    const updatedUser = await User.findByIdAndUpdate(user?.id, {
+      password: hashPassword,
+    });
+    if (!updatedUser) {
+      throw HttpError(404);
+    }
+    await this.tokenService.removeTokenByUserId(user.id);
+  }
   // REQUEST PASSWORD RESET
   async requestPasswordReset(email) {
     const user = await User.findOne({ email });
@@ -76,13 +103,19 @@ class AuthService {
     if (!user) {
       throw HttpError(404);
     }
-    this.mailService.sendPasswordResetEmail(email, "ggg");
+    const userDTO = AuthDTO.toRegisterDTO(user);
+
+    const link = this.idService.generateID();
+    const resetLink = `${process.env.BASE_URL}/api/auth/reset-password/${link}`;
+    this.mailService.sendPasswordResetEmail(email, resetLink);
+    const resetToken = this.tokenService.generateResetToken({ id: userDTO.id });
+    return { resetToken };
   }
 
   // REFRESH
   async refreshUser(refreshToken) {
     if (!refreshToken) {
-      throw HttpError(401);
+      throw HttpError(400);
     }
     const { valid, user, error } = await this.tokenService.validateToken(
       refreshToken,
@@ -105,4 +138,9 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService(HashService, TokenService, MailService);
+module.exports = new AuthService(
+  HashService,
+  TokenService,
+  MailService,
+  IDService
+);

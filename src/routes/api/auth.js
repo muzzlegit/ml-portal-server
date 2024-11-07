@@ -29,14 +29,8 @@ router.post(
   requestPasswordReset
 );
 
-router.post(
-  "/reset-password/:link",
-  validateBody(userSchemas.resetPasswordSchema),
-  resetPassword
-);
-
-router.post(
-  "/update-password",
+router.put(
+  "/reset-password",
   validateBody(userSchemas.resetPasswordSchema),
   resetPassword
 );

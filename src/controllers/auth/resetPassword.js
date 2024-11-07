@@ -2,16 +2,15 @@ const { ctrlWrapper } = require("../../helpers");
 const { AuthService } = require("../../services");
 
 const resetPassword = async (req, res) => {
-  const { user, tokens } = await AuthService.refreshUser(refreshToken);
+  const { password } = req.body;
+  const { resetToken } = req.cookies;
+  await AuthService.resetPassword(resetToken, password);
 
-  res.cookie("refreshToken", tokens.refreshToken, {
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-  });
+  res.clearCookie("refreshToken");
+  res.clearCookie("resetToken");
 
-  res.json({
-    user,
-    tokens,
+  res.status(200).json({
+    message: "Password changed successfully",
   });
 };
 

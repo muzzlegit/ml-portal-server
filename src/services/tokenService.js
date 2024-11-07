@@ -12,6 +12,12 @@ class TokenService {
     return { accessToken, refreshToken };
   }
 
+  static generateResetToken(payload) {
+    return jwt.sign(payload, process.env.JWT_SECRET_RESET, {
+      expiresIn: 60 * 30,
+    });
+  }
+
   static async saveToken(userId, refreshToken) {
     const tokenData = await Token.findOne({ user: userId });
     if (tokenData) {
@@ -31,12 +37,18 @@ class TokenService {
     const tokenData = await Token.deleteOne({ refreshToken });
     return tokenData;
   }
+  static async removeTokenByUserId(userId) {
+    const tokenData = await Token.deleteOne({ user: userId });
+    return tokenData;
+  }
 
-  static async validateToken(accessToken, keyType) {
-    const secretKey =
-      keyType === "access"
-        ? process.env.JWT_SECRET_ACCESS
-        : process.env.JWT_SECRET_REFRESH;
+  static async validateToken(token, keyType) {
+    const keyTypes = {
+      access: process.env.JWT_SECRET_ACCESS,
+      refresh: process.env.JWT_SECRET_REFRESH,
+      reset: process.env.JWT_SECRET_RESET,
+    };
+    const secretKey = keyTypes[keyType];
 
     if (!secretKey) {
       return {
@@ -46,7 +58,7 @@ class TokenService {
     }
 
     try {
-      const userData = jwt.verify(accessToken, secretKey);
+      const userData = jwt.verify(token, secretKey);
       return { valid: Boolean(userData), user: userData };
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {

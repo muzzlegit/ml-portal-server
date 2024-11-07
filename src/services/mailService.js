@@ -14,7 +14,7 @@ class MailService {
     });
   }
   async sendPasswordResetEmail(to, link) {
-    return await this.transporter
+    await this.transporter
       .sendMail({
         from: process.env.GMAIL,
         to,
