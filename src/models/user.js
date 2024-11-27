@@ -5,7 +5,7 @@ const { handleMongooseError } = require("../helpers");
 
 const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const colorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-const userIcons = ["bag", "bot"];
+const userIcons = ["alien", "crab", "mask", "chilli", "island", "butterfly"];
 
 const userSchema = new Schema(
   {

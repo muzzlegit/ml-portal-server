@@ -11,9 +11,10 @@ const login = async (req, res) => {
     httpOnly: true,
   });
 
-  res.json({
+  res.status(200).json({
     user,
-    tokens,
+    token: tokens.accessToken,
+    message: "Successful login",
   });
 };
 

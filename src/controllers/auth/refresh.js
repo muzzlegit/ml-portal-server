@@ -12,7 +12,7 @@ const refresh = async (req, res) => {
 
   res.json({
     user,
-    tokens,
+    token: tokens.accessToken,
   });
 };
 

@@ -18,7 +18,7 @@ class AuthService {
     const user = await User.findOne({ email });
 
     if (user) {
-      throw HttpError(409);
+      throw HttpError(401);
     }
 
     const hashPassword = await this.hashService.hashPassword(password);

@@ -21,7 +21,7 @@ router.post("/login", validateBody(userSchemas.loginSchema), login);
 
 router.post("/logout", authenticate, logout);
 
-router.get("/refresh", authenticate, refresh);
+router.get("/refresh", refresh);
 
 router.post(
   "/request-password-reset",
